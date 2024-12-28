@@ -16,7 +16,6 @@ BROCHE1      		EQU 	0x02		; bouton poussoir 2
 GPIO_PORTD_BASE		EQU	0x40007000	
 GPIO_PORTE_BASE		EQU	0x40024000
 GPIO_PORTF_BASE EQU 0x40025000
-cpt EQU 0
 		ENTRY
 		EXPORT	__main
 		
@@ -57,12 +56,8 @@ __main
 		BL	MOTEUR_INIT	
 		BL LED2_ON
 		BL LED3_ON
-			
-		;BL	MOTEUR_DROIT_ON
-		;BL	MOTEUR_GAUCHE_ON
+	
 		
-		
-		ldr r0, =cpt
 step1		
 		BL MOTEUR_DROIT_ON
 		BL MOTEUR_GAUCHE_ON
@@ -75,11 +70,9 @@ step1
 		B question1
 		
 question1
-	; q: Résultat de 2+2 (=4)
-	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
 	
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
 	ldr r6, [r7]
-	
 	CMP r6, #0
 	BEQ step2
 	B question1 
@@ -101,7 +94,7 @@ step2
 		
 		B question2
 question2
-	ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
 
 	ldr r6, [r7]
 	cmp r6, #0
@@ -124,15 +117,97 @@ step3
 	BL MOTEUR_GAUCHE_OFF 
 		
 	B question3
+	
 question3
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
-
-	ldr r6, [r7]
-	cmp r6, #0
-	BEQ step4
+	ldr r11, [r7] ; switch haut
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r10, [r7] ; switch bas
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r9, [r7] ; bumper gauche
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+	ldr r8, [r7] ; bumper droit
+	
+	
+	cmp r11, #0
+	BEQ led5_switch
+	cmp r10, #0
+	BEQ led4_switch
+	cmp r9, #0
+	BEQ led2_switch
+	cmp r8, #0
+	BEQ led3_switch
 	B question3
 
+led4_switch
+	ldr r7, = GPIO_PORTF_BASE + (PIN4<<2)
+	ldr r6, [r7]
+	cmp r6, #0
+	BEQ led4_on
+	BL LED4_OFF
+	B check_question3
+
+led4_on
+	BL LED4_ON
+	B check_question3
+
+led2_switch
+	ldr r7, = GPIO_PORTF_BASE + (PIN2<<2)
+	ldr r6, [r7]
+	cmp r6, #0
+	BEQ led2_on
+	BL LED2_OFF
+	B check_question3	
+	
+led2_on
+	BL LED2_ON
+	B check_question3
+	
+led3_switch
+	ldr r7, = GPIO_PORTF_BASE + (PIN3<<2)
+	ldr r6, [r7]
+	cmp r6, #0
+	BEQ led3_on
+	BL LED3_OFF
+	B check_question3	
+	
+led3_on
+	BL LED3_ON
+	B check_question3
+
+led5_switch
+	ldr r7, = GPIO_PORTF_BASE + (PIN5<<2)
+	ldr r6, [r7]
+	cmp r6, #0
+	BEQ led5_on
+	BL LED5_OFF
+	B check_question3	
+	
+led5_on
+	BL LED5_ON
+	B check_question3
+
+check_question3
+	ldr r7, = GPIO_PORTF_BASE + (PIN5<<2)
+	ldr r6, [r7] ; led5
+	ldr r7, = GPIO_PORTF_BASE + (PIN4<<2)
+	ldr r5, [r7] ; led4
+	ldr r7, = GPIO_PORTF_BASE + (PIN3<<2)
+	ldr r4, [r7] ; led3
+	ldr r7, = GPIO_PORTF_BASE + (PIN2<<2)
+	ldr r3, [r7] ; led2
+	
+	cmp r6, #PIN5
+	beq led5_allume
+	b question3
+led5_allume
+	cmp r5, #PIN4
+	beq step4
+	b question3
+
 step4
+	BL LED4_OFF
+	BL LED5_OFF
 	BL MOTEUR_DROIT_ON
 	BL MOTEUR_GAUCHE_ON
 
@@ -149,14 +224,100 @@ step4
 		
 	B question4
 question4
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+	ldr r11, [r7] ; switch haut
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r10, [r7] ; switch bas
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r9, [r7] ; bumper gauche
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+	ldr r8, [r7] ; bumper droit
+	
+	
+	cmp r11, #0
+	BEQ led5_switch_2
+	cmp r10, #0
+	BEQ led4_switch_2
+	cmp r9, #0
+	BEQ led2_switch_2
+	cmp r8, #0
+	BEQ led3_switch_2
+	B question4
 
+led4_switch_2
+	ldr r7, = GPIO_PORTF_BASE + (PIN4<<2)
 	ldr r6, [r7]
 	cmp r6, #0
-	BEQ step5
-	B question4
+	BEQ led4_on_2
+	BL LED4_OFF
+	B check_question4
+
+led4_on_2
+	BL LED4_ON
+	B check_question4
+
+led2_switch_2
+	ldr r7, = GPIO_PORTF_BASE + (PIN2<<2)
+	ldr r6, [r7]
+	cmp r6, #0
+	BEQ led2_on_2
+	BL LED2_OFF
+	B check_question4	
+	
+led2_on_2
+	BL LED2_ON
+	B check_question4
+	
+led3_switch_2
+	ldr r7, = GPIO_PORTF_BASE + (PIN3<<2)
+	ldr r6, [r7]
+	cmp r6, #0
+	BEQ led3_on_2
+	BL LED3_OFF
+	B check_question4	
+	
+led3_on_2
+	BL LED3_ON
+	B check_question4
+
+led5_switch_2
+	ldr r7, = GPIO_PORTF_BASE + (PIN5<<2)
+	ldr r6, [r7]
+	cmp r6, #0
+	BEQ led5_on_2
+	BL LED5_OFF
+	B check_question4	
+	
+led5_on_2
+	BL LED5_ON
+	B check_question4
+
+check_question4
+	ldr r7, = GPIO_PORTF_BASE + (PIN5<<2)
+	ldr r6, [r7] ; led5
+	ldr r7, = GPIO_PORTF_BASE + (PIN4<<2)
+	ldr r5, [r7] ; led4
+	ldr r7, = GPIO_PORTF_BASE + (PIN3<<2)
+	ldr r4, [r7] ; led3
+	ldr r7, = GPIO_PORTF_BASE + (PIN2<<2)
+	ldr r3, [r7] ; led2
+	
+	cmp r6, #PIN5
+	beq led5_allume_2
+	b question4
+led5_allume_2
+	cmp r5, #PIN4
+	beq led4_allume_2
+	b question4
+led4_allume_2
+	cmp r4, #0
+	beq step5
+	b question4
 	
 step5
+	BL LED5_OFF
+	BL LED4_OFF
+	BL LED3_ON
 	BL MOTEUR_DROIT_ON
 	BL MOTEUR_GAUCHE_ON
 
