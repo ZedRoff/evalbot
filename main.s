@@ -58,7 +58,7 @@ __main
 		BL LED3_ON
 	
 		
-step1		
+step1	
 		BL MOTEUR_DROIT_ON
 		BL MOTEUR_GAUCHE_ON
 
@@ -202,12 +202,22 @@ check_question3
 	b question3
 led5_allume
 	cmp r5, #PIN4
-	beq step4
+	beq led3_eteint
 	b question3
+led3_eteint
+	cmp r4, #PIN3
+	beq led2_eteint
+	B question3
+led2_eteint
+	cmp r3, #PIN2
+	beq step4
+	B question3
 
 step4
 	BL LED4_OFF
 	BL LED5_OFF
+	BL LED3_ON
+	BL LED2_ON
 	BL MOTEUR_DROIT_ON
 	BL MOTEUR_GAUCHE_ON
 
@@ -311,13 +321,18 @@ led5_allume_2
 	b question4
 led4_allume_2
 	cmp r4, #0
+	beq led3_eteint_2
+	b question4
+led3_eteint_2
+	cmp r3, #PIN2
 	beq step5
 	b question4
-	
+
 step5
-	BL LED5_OFF
 	BL LED4_OFF
+	BL LED5_OFF
 	BL LED3_ON
+	BL LED2_ON
 	BL MOTEUR_DROIT_ON
 	BL MOTEUR_GAUCHE_ON
 
@@ -349,18 +364,6 @@ blink
 		b blink
 		
 
-		
-		
-	
-
-
-
-		;; BL Branchement vers un lien (sous programme)
-
-		; Configure les PWM + GPIO
-		   
-		
-		; Activer les deux moteurs droit et gauche
 		
 WAIT_BLINK ldr r1, =0xFFFFF   
 wait_blink	subs r1, #1
