@@ -61,16 +61,28 @@ __main
 step1	
 		BL MOTEUR_DROIT_ON
 		BL MOTEUR_GAUCHE_ON
-
+step1_bis
 		BL MOTEUR_DROIT_AVANT
 		BL MOTEUR_GAUCHE_AVANT
-		BL WAIT
-		BL MOTEUR_DROIT_OFF
-		BL MOTEUR_GAUCHE_OFF 
-		B question1
+		
+		
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+		ldr r9, [r7] ; bumper gauche
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+		ldr r8, [r7] ; bumper droit
+		
+		cmp r9, #0
+		BEQ question1
+		cmp r8, #0
+		BEQ question1
+		
+		B step1_bis
+		
+		
 		
 question1
-	
+	BL MOTEUR_DROIT_OFF
+	BL MOTEUR_GAUCHE_OFF 
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
 	ldr r6, [r7]
 	CMP r6, #0
@@ -84,41 +96,82 @@ step2
 		BL MOTEUR_DROIT_ARRIERE
 		BL MOTEUR_GAUCHE_AVANT
 		BL WAIT
-		
+step2_bis
 		BL MOTEUR_DROIT_AVANT
 		BL MOTEUR_GAUCHE_AVANT
-		BL WAIT
+	
 		
-		BL MOTEUR_DROIT_OFF
-		BL MOTEUR_GAUCHE_OFF 
 		
-		B question2
+		
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+		ldr r9, [r7] ; bumper gauche
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+		ldr r8, [r7] ; bumper droit
+		
+		cmp r9, #0
+		BEQ question2
+		cmp r8, #0
+		BEQ question2
+		
+		B step2_bis
+		
 question2
+	
+	BL MOTEUR_DROIT_OFF
+	BL MOTEUR_GAUCHE_OFF 
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
-
+	
 	ldr r6, [r7]
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+	ldr r5, [r7]
+	
+	BL LED4_ON 
+	BL WAIT
+	BL LED4_OFF
+	BL LED5_ON 
+	BL WAIT
+	BL LED5_OFF 
+	BL WAIT_BLINK
+	BL LED5_ON 
+	BL WAIT
+	BL LED5_OFF
+question2_bis 
 	cmp r6, #0
-	BEQ step3
-	B question2
+	BEQ question2_bis_1
+	B question2_bis
 
 step3
 	BL MOTEUR_DROIT_ON
 	BL MOTEUR_GAUCHE_ON
-
+	
 	BL MOTEUR_DROIT_ARRIERE
 	BL MOTEUR_GAUCHE_AVANT
 	BL WAIT
-		
+step3_bis
 	BL MOTEUR_DROIT_AVANT
 	BL MOTEUR_GAUCHE_AVANT
-	BL WAIT
+
 		
-	BL MOTEUR_DROIT_OFF
-	BL MOTEUR_GAUCHE_OFF 
+	 
 		
-	B question3
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r9, [r7] ; bumper gauche
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+	ldr r8, [r7] ; bumper droit
+		
+	cmp r9, #0
+	BEQ question3
+	cmp r8, #0
+	BEQ question3
+	
+	
+	B step3_bis
+	
 	
 question3
+	BL MOTEUR_DROIT_OFF
+	BL MOTEUR_GAUCHE_OFF
+	
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
 	ldr r11, [r7] ; switch haut
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
@@ -133,6 +186,7 @@ question3
 	BEQ led5_switch
 	cmp r10, #0
 	BEQ led4_switch
+	
 	cmp r9, #0
 	BEQ led2_switch
 	cmp r8, #0
@@ -224,16 +278,28 @@ step4
 	BL MOTEUR_DROIT_AVANT
 	BL MOTEUR_GAUCHE_ARRIERE
 	BL WAIT
-		
+step4_bis
 	BL MOTEUR_DROIT_AVANT
 	BL MOTEUR_GAUCHE_AVANT
-	BL WAIT
+	
 		
+	
+		
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r9, [r7] ; bumper gauche
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+	ldr r8, [r7] ; bumper droit
+		
+	cmp r9, #0
+	BEQ question4
+	cmp r8, #0
+	BEQ question4
+		
+	B step4_bis
+		
+question4
 	BL MOTEUR_DROIT_OFF
 	BL MOTEUR_GAUCHE_OFF 
-		
-	B question4
-question4
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
 	ldr r11, [r7] ; switch haut
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
@@ -338,17 +404,33 @@ step5
 
 	BL MOTEUR_DROIT_AVANT
 	BL MOTEUR_GAUCHE_ARRIERE
-	BL WAIT
-		
+
+	
+step5_bis
 	BL MOTEUR_DROIT_AVANT
 	BL MOTEUR_GAUCHE_AVANT
 	BL WAIT
 		
 	BL MOTEUR_DROIT_OFF
 	BL MOTEUR_GAUCHE_OFF 
+	
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r9, [r7] ; bumper gauche
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+	ldr r8, [r7] ; bumper droit
 		
-	B blink
+	cmp r9, #0
+	BEQ blink
+	cmp r8, #0
+	BEQ blink
+		
+	B step5_bis
+		
 blink
+		BL MOTEUR_GAUCHE_ON
+		BL MOTEUR_DROIT_ON
+		BL MOTEUR_GAUCHE_ARRIERE
+		BL MOTEUR_DROIT_AVANT
 		BL LED4_ON
 		BL WAIT_BLINK
 		BL LED4_OFF
