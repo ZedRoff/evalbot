@@ -83,8 +83,9 @@ VITESSE			EQU		0X152	; Valeures plus petites => Vitesse plus rapide exemple 0x19
 		EXPORT  MOTEUR_GAUCHE_OFF
 		EXPORT  MOTEUR_GAUCHE_AVANT
 		EXPORT  MOTEUR_GAUCHE_ARRIERE
-		EXPORT  MOTEUR_GAUCHE_INVERSE                                                                                                                                                                                                                       
-
+		EXPORT  MOTEUR_GAUCHE_INVERSE     
+		EXPORT MOTEUR_DOUBLE_AVANT
+	
 
 MOTEUR_INIT	
 		ldr r6, = SYSCTL_RCGC0
@@ -317,6 +318,16 @@ MOTEUR_GAUCHE_AVANT
 		str	r0,[r6]
 		BX	LR		
 
+MOTEUR_DOUBLE_AVANT
+	ldr	r6, =(GPIODATA_D+(GPIO_1<<2)) 
+	mov	r0, #2
+	str	r0,[r6]
+	
+	ldr	r6, =(GPIODATA_H+(GPIO_1<<2)) 
+	mov	r0, #0
+	str	r0,[r6]
+		BX	LR
+
 MOTEUR_DROIT_INVERSE
 		;Inverse Direction (GPIO_D1)
 		ldr	r6, =(GPIODATA_D+(GPIO_1<<2)) 
@@ -332,5 +343,6 @@ MOTEUR_GAUCHE_INVERSE
 		EOR	r0, r1, #GPIO_1
 		str	r0,[r6]
 		BX	LR
+
 	NOP
 	END
