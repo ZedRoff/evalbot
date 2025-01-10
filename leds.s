@@ -5,18 +5,19 @@
 
 	AREA |.text|, CODE, READONLY
 
-SYSCTL EQU 0x400FE108
-GPIO_PORTF_BASE EQU 0x40025000
-GPIO_O_DIR EQU 0x400
-GPIO_O_DEN EQU 0x51C
-GPIO_O_DR2R EQU 0x500
+GPIO_PORTF_BASE EQU 0x40025000 ; Port F de base
+GPIO_O_DIR EQU 0x400 ; Direction, permet de spécifier que c'est une sortie dont il est question
+GPIO_O_DEN EQU 0x51C ; Digital enable fonction
+GPIO_O_DR2R EQU 0x500 ; 2mA intensitée
 	
-PIN2 EQU 0x04
-PIN3 EQU 0x08
-PIN4 EQU 0x10
-PIN5 EQU 0x20
+PIN2 EQU 0x04 ; led arrière
+PIN3 EQU 0x08 ; led arrière
+PIN4 EQU 0x10 ; led avant
+PIN5 EQU 0x20 ; led avant
 	
 	ENTRY
+	; On exporte les étiquettes
+ 
 	EXPORT LED2_ON
 	EXPORT LED2_OFF
 	
