@@ -2,14 +2,16 @@
 	;;;;;;;;;;;; SETUP BUMPER
 	
 	AREA |.text|, CODE, READONLY
-GPIO_I_PUR EQU 0x510 
-GPIO_PORTE_BASE		EQU	0x40024000	
-GPIO_O_DEN EQU 0x51C
-BROCHE0				EQU 	0x01	; bouton poussoir 1
-BROCHE1 EQU 0x02
+GPIO_I_PUR EQU 0x510 ; Pull up resistor
+GPIO_PORTE_BASE		EQU	0x40024000	; Port E de base
+GPIO_O_DEN EQU 0x51C ; Digital enable fonction
+BROCHE0				EQU 	0x01	; bumper 1
+BROCHE1 EQU 0x02 ; bumper 2
 	ENTRY
 	
-	EXPORT BUMPER_INIT
+	EXPORT BUMPER_INIT ; on exporte la fonction
+ 
+;; Globalement idem aux switchs pour cette partie
 
 BUMPER_INIT
 
