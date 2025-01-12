@@ -116,7 +116,7 @@ question1
 	CMP r6, #0
 	
 	; on passe à l'étape suivante
-	BEQ question1
+	BEQ step2
 	CMP r5, #0
 	BEQ error_question1
 	; sinon, on repart au prompt de la question 1
