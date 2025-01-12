@@ -112,12 +112,12 @@ question1
 	ldr r6, [r7]
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
 	ldr r5, [r7]
-	; si le switch bas est appuyé
-	CMP r5, #0
+	; si le switch haut est appuyé
+	CMP r6, #0
 	
 	; on passe à l'étape suivante
 	BEQ question1
-	CMP r6, #0
+	CMP r5, #0
 	BEQ error_question1
 	; sinon, on repart au prompt de la question 1
 	B question1 
