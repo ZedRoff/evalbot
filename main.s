@@ -60,7 +60,7 @@ __main
 		BL LED2_ON
 		BL LED3_ON
 ; PREMIERE ETAPE: Le robot avance tout droit tant que l'un des deux bumpers n'est pas activé
-	
+
 step1
 		; Faire avancer le robot
 		BL MOTEUR_DROIT_ON
@@ -76,37 +76,61 @@ step1
 		; Si le bumper gauche est activé
 		cmp r9, #0
 		; on passe a la première question
-		BEQ question1 
+		BEQ question1_tempo
 		
 		; Si le bumper droit est activé
 		cmp r8, #0
 		; on passe a la première question
-		BEQ question1 
+		BEQ question1_tempo
 		
 		; sinon, on retourne a l'étape de base
 		B step1
+
+; Etape qui temporise l'appui du bouton pour lancer la prochaine question
+question1_tempo
+; On éteint les moteurs
+	BL MOTEUR_DROIT_OFF
+	BL MOTEUR_GAUCHE_OFF 
+	; on initialise le bouton switch bas
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r6, [r7]
+	; si il est appuyé on passe a la question1
+	cmp r6, #0
+	beq question1
+	; sinon on reboucle sur l'étape actuelle
+	b question1_tempo
 
 ; Première épreuve : type question/réponse
 ;; Principe : Une question est posée, il faut répondre avec soit le switch du haut (vrai) ou le switch du bas (faux)
 ;; Réponse : switch du haut
 
 question1
-	; On éteint les moteurs
-	BL MOTEUR_DROIT_OFF
-	BL MOTEUR_GAUCHE_OFF 
+	BL WAIT_BLINK
 	
 	; Initialisation du switch haut
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
 	ldr r6, [r7]
-	
-	; si le switch haut est appuyé
-	CMP r6, #0
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r5, [r7]
+	; si le switch bas est appuyé
+	CMP r5, #0
 	
 	; on passe à l'étape suivante
-	BEQ step2
-	
+	BEQ question1
+	CMP r6, #0
+	BEQ error_question1
 	; sinon, on repart au prompt de la question 1
 	B question1 
+
+error_question1
+	BL LED4_ON
+	BL LED5_ON
+	BL WAIT
+	BL LED4_OFF
+	BL LED5_OFF
+	B question1
+
+
 
 ; Deuxième étape : le robot tourne de 90degré vers la droite et avance tout droit, jusqu'à ce que le bumper gauche ou droit soit activé
 step2
@@ -133,11 +157,11 @@ step2_bis
 		; Si le bumper gauche est activé
 		cmp r9, #0
 		; On peut passer a la question 2
-		BEQ question2
+		BEQ question2_tempo
 		; Si le bumper droit est activé
 		cmp r8, #0
 		; On peut passer a la question 2
-		BEQ question2
+		BEQ question2_tempo
 		
 		; Sinon, on repart a l'état de temporisation
 		B step2_bis
@@ -146,10 +170,24 @@ step2_bis
 		;; Principe : Des leds vont s'allumées, l'objectif est de mémorisé l'ordre d'allumage des leds et de les reproduire avec les switchs
 		;; Réponse : LED DROITE puis LED GAUCHE, puis LED GAUCHE et enfin LED DROITE. Donc SW BAS, SW HAUT, SW HAUT, SW BAS
 
-question2
-	; On éteint les moteurs
+; Etape qui temporise l'appui du bouton pour lancer la prochaine question
+question2_tempo
+; On éteint les moteurs
 	BL MOTEUR_DROIT_OFF
 	BL MOTEUR_GAUCHE_OFF 
+	; on initialise le bouton switch bas
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r6, [r7]
+	; si il est appuyé on passe a la question2
+	cmp r6, #0
+	beq question2
+	; sinon on reboucle sur l'étape actuelle
+	b question2_tempo
+	
+	
+	
+question2
+	
 	
 	; On réalise la trame du simon
 	BL LED4_ON 
@@ -162,7 +200,11 @@ question2
 	BL LED5_ON 
 	BL WAIT
 	BL LED5_OFF
+	BL LED4_ON
+	BL WAIT
+	BL LED4_OFF
 	
+	LTORG
 	; R1 sera la variable d'état, qui nous indiquera où en est le joueur
 	mov r1, #0
 
@@ -182,6 +224,11 @@ question2_bis
 	cmp r5, #0
 	; On vérifie si il devait bien être appuyé selon r1
 	beq check_btn_haut
+	; pour recommencer le simon
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r9, [r7] ; bumper gauche
+	cmp r9, #0
+	beq question2
 	; Si aucun n'a été activé, alors on reboucle sur l'étape de temporisation
 	B question2_bis
 
@@ -304,11 +351,11 @@ step3_bis
 	; Si le bumper gauche est activé
 	cmp r9, #0
 	; On passe a la question 3
-	BEQ question3
+	BEQ question3_tempo
 	; Si le bumper droit est activé
 	cmp r8, #0
 	; On passe a la question 3
-	BEQ question3
+	BEQ question3_tempo
 	
 	; Sinon, on repart a l'étape de temporisation
 	B step3_bis
@@ -317,12 +364,26 @@ step3_bis
 	;; Principe : Un calcul binaire vous sera posé, et vous devez allumer les leds pour reconstruire un nombre binaire a 4 bits
 	;; led la plus a gauche est le bit de poids fort et celle la plus a droite représente le bit de poids faible
 	;; Réponse : 1011
-
-		
+; Etape qui temporise l'appui du bouton pour lancer la prochaine question
+question3_tempo
+; On éteint les moteurs
+	BL MOTEUR_DROIT_OFF
+	BL MOTEUR_GAUCHE_OFF 
+	; on initialise le bouton switch bas
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r6, [r7]
+	; si il est appuyé on passe a la question3
+	cmp r6, #0
+	beq question3
+	; sinon on reboucle sur l'étape actuelle
+	b question3_tempo
 question3
+
 	; On éteint les moteurs
 	BL MOTEUR_DROIT_OFF
 	BL MOTEUR_GAUCHE_OFF 
+	BL WAIT_BLINK
+	
 	; On setup les switchs ainsi que les bumpers
 	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
 	ldr r11, [r7] ; switch haut
@@ -476,11 +537,174 @@ step4_bis
 		
 	; Si l'un des deux bumpers est activé, alors on part a l'état blink
 	cmp r9, #0
-	BEQ blink
+	BEQ question4_tempo
 	cmp r8, #0
-	BEQ blink
+	BEQ question4_tempo
 		
 	B step4_bis
+
+;; Quatrième épreuve
+question4_tempo
+; On éteint les moteurs
+	BL MOTEUR_DROIT_OFF
+	BL MOTEUR_GAUCHE_OFF 
+	; on initialise le bouton switch bas
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r6, [r7]
+	; si il est appuyé on passe a la question3
+	cmp r6, #0
+	beq question4
+	; sinon on reboucle sur l'étape actuelle
+	b question4_tempo
+	;; Quatrième et dernière épreuve : Un test de rapidité
+	;; Principe : Appuyé au bon moment sur le switch de la led allumée
+question4
+	 
+	; On setup les switchs ainsi que les bumpers
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+	ldr r11, [r7] ; switch haut
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r10, [r7] ; switch bas
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r9, [r7] ; bumper gauche
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+	ldr r8, [r7] ; bumper droit
+etape1_tempo
+	ldr r1, =0x55555
+	BL LED4_OFF
+	BL LED5_OFF
+	BL LED2_ON
+	BL LED3_ON
+	
+etape1
+	BL LED5_OFF
+	
+	BL LED4_ON
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+	ldr r10, [r7] ; switch haut
+	cmp r10, #0
+	beq etape2_tempo
+	
+	subs r1, #1
+	bne etape1
+	B error_question4
+etape2_tempo
+	ldr r1, =0x55555
+	
+etape2
+
+	BL LED4_OFF
+	BL LED5_ON
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r11, [r7] ; switch bas
+	cmp r11, #0
+	beq etape3_tempo
+	subs r1, #1
+	bne etape2
+	B error_question4
+
+etape3_tempo
+	ldr r1, =0x55555
+
+etape3
+	BL LED5_OFF
+	BL LED2_OFF
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r9, [r7] ; bumper gauche
+	
+	cmp r9, #0
+	beq etape4_tempo
+	subs r1, #1
+	bne etape3
+	B error_question4
+
+
+etape4_tempo
+	ldr r1, =0x55555
+etape4
+	BL LED2_ON
+	BL LED3_OFF
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+	ldr r8, [r7] ; bumper droit
+	
+	cmp r8, #0
+	beq etape5_tempo
+	subs r1, #1
+	bne etape4
+	B error_question4
+etape5_tempo
+	ldr r1, =0x55555
+etape5
+	BL LED3_ON
+	BL LED5_ON
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r11, [r7] ; switch bas
+	cmp r11, #0
+	beq etape6_tempo
+	subs r1, #1
+	bne etape5
+	B error_question4
+
+etape6_tempo
+	ldr r1, =0x55555
+etape6
+	BL LED5_OFF
+	BL LED2_OFF
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r8, [r7] ; bumper gauche
+	
+	cmp r8, #0
+	beq etape7_tempo
+	subs r1, #1
+	bne etape6
+	B error_question4
+
+	
+	
+etape7_tempo
+	ldr r1, =0x55555
+etape7
+	BL LED2_ON
+	BL LED4_ON
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+	ldr r8, [r7] ; switch haut	
+	cmp r8, #0
+	beq fin_bis
+	subs r1, #1
+	bne etape7
+	B error_question4
+error_question4
+	BL LED4_ON
+	BL LED5_ON
+	BL WAIT
+	BL LED4_OFF
+	BL LED5_OFF
+	B etape1_tempo 
+
+fin_bis
+	BL LED4_OFF
+	BL MOTEUR_DROIT_ON
+	BL MOTEUR_GAUCHE_ON
+	BL MOTEUR_DROIT_AVANT
+	BL MOTEUR_GAUCHE_ARRIERE
+	BL WAIT
+fin
+	BL MOTEUR_GAUCHE_AVANT
+	BL MOTEUR_DROIT_AVANT
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+	ldr r9, [r7] ; bumper gauche
+	ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+	ldr r8, [r7] ; bumper droit
+		
+		; Si le bumper gauche est activé
+	cmp r9, #0
+		; On peut passer au blink
+	BEQ blink
+		; Si le bumper droit est activé
+	cmp r8, #0
+		; On peut passer au blink
+	BEQ blink
+	B fin
 
 ; Fin du jeu, le robot tourne sur lui-même et les leds clignotent dans le sens anti-horaire
 blink
@@ -500,25 +724,28 @@ blink
 		BL LED3_OFF
 		BL WAIT_BLINK
 		BL LED3_ON
-		
+		LTORG
 		; Rebouclage a la fin
 		b blink
 		
 
 ; Partie qui permet de faire attendre le programme pendant un court instant, est utilisée pour l'attente entre deux clignottements	
-WAIT_BLINK ldr r1, =0xFFFFF   
-wait_blink	subs r1, #1
+WAIT_BLINK ldr r2, =0xFFFFF   
+wait_blink	subs r2, #1
 			bne wait_blink
 			BX LR
 			
 ; Partie qui permet de faire attendre le programme pendant un bref instant, est utilisée pour l'attente entre une rotation ou une avancée
-WAIT	ldr r1, =0xAFFFFF 
-wait1	subs r1, #1
+WAIT	ldr r2, =0xAFFFFF 
+wait1	subs r2, #1
         bne wait1
 		
 		;; retour à la suite du lien de branchement
 		BX	LR
 
+
+		
+		
 	; Fin du programme, no operation et end
 		NOP
         END
