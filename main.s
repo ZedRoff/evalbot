@@ -580,7 +580,7 @@ etape1
 	BL LED5_OFF
 	
 	BL LED4_ON
-	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
 	ldr r10, [r7] ; switch haut
 	cmp r10, #0
 	beq etape2_tempo
@@ -595,7 +595,7 @@ etape2
 
 	BL LED4_OFF
 	BL LED5_ON
-	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
 	ldr r11, [r7] ; switch bas
 	cmp r11, #0
 	beq etape3_tempo
@@ -637,7 +637,7 @@ etape5_tempo
 etape5
 	BL LED3_ON
 	BL LED5_ON
-	ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
 	ldr r11, [r7] ; switch bas
 	cmp r11, #0
 	beq etape6_tempo
@@ -666,7 +666,7 @@ etape7_tempo
 etape7
 	BL LED2_ON
 	BL LED4_ON
-	ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+	ldr r7, = GPIO_PORTD_BASE + (BROCHE<<2)
 	ldr r8, [r7] ; switch haut	
 	cmp r8, #0
 	beq fin_bis
